@@ -1,2 +1,2 @@
-# World_Of_Boats
-World_Of_Boats's repository
+World_Of_Boats is a free to play game
+
