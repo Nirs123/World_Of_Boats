@@ -69,41 +69,40 @@ class perso:
         self.Pt_vie=self.Pt_Vie
 
     def Attack(self,self1):
-        dgts=0
+        self.dgts=0
         if self.bullet=="HE":
             a=randint(1,4)
             if a==1:
-                dgts=dgts+120*50
+                self.dgts=self.dgts+120*50
         if self.boats=="Submarine" or self.boats=="Destroyer":
             c=randint(1,4)
             if c==2:
-                dgts=dgts+self.torps//3
+                self.dgts=self.dgts+self.torps//3
                 e=randint(self.inondation,6)
                 if e==self.inondation:
-                    dgts=dgts+100*90
+                    self.dgts=self.dgts+100*90
             elif c==3:
-                dgts=dgts+self.torps//2
+                self.dgts=self.dgts+self.torps//2
                 e=randint(self.inondation,5)
                 if e==self.inondation:
-                    dgts=dgts+100*90
+                    self.dgts=self.dgts+100*90
             else:
-                dgts=dgts+self.torps
+                self.dgts=self.dgts+self.torps
                 e=randint(self.inondation,4)
                 if e==self.inondation:
-                    dgts=dgts+100*90
-
+                    self.dgts=self.dgts+100*90
         if self1.boats=="Submarine" and self.boats!="Submarine":
-            dgts=0
-            dgts=randint(4000,self.sub_bombs)
+            self.dgts=0
+            self.dgts=randint(4000,self.sub_bombs)
         if self.boats!="Submarine" and self1.boats=="Submarine" or self1.boats=="Destroyer":
             b=randint(1,3)
             if b==2:
-                dgts=dgts+randint(int(self.attack/5),int(self.attack/2))
+                self.dgts=self.dgts+randint(int(self.attack/5),int(self.attack/2))
             else:
-                dgts=dgts+randint(int(self.attack/5),self.attack)
+                self.dgts=self.dgts+randint(int(self.attack/5),self.attack)
         else:
-            dgts=dgts+randint(int(self.attack/6),self.attack)
-        self1.set_pv(self1.get_pt_vie()-dgts)
+            self.dgts=self.dgts+randint(int(self.attack/6),self.attack)
+        self1.set_pv(self1.get_pt_vie()-self.dgts)
 
     def get_pseudo(self):
         return self.name
@@ -117,6 +116,9 @@ class perso:
         return self.status
     def set_status(self,status):
         self.status = status
+
+    def get_dgts(self):
+        return self.dgts
 
     def bonus_vie(self):
         self.set_pv(self.get_pt_vie()+randint(int(self.Pt_Vie//6),int(self.Pt_Vie//4)))
@@ -163,11 +165,11 @@ class Text_Button_Entry:
         self.command = command
         self.var = variable
         if self.type == "Label":
-            self.temp = tk.Label(self.frame, text = self.text, font=('Courrier',str(self.size),"italic"),bg="#000000", fg="#FFFFFF")
+            self.temp = tk.Label(self.frame, text = self.text, font=('Courrier',str(self.size)),bg="#000000", fg="#FFFFFF")
         elif self.type == "Button":
-            self.temp = tk.Button(self.frame, text = self.text, font=('Courrier',str(self.size),"italic"),bg="#000000", fg="#FFFFFF",command = self.command)
+            self.temp = tk.Button(self.frame, text = self.text, font=('Courrier',str(self.size)),bg="#000000", fg="#FFFFFF",command = self.command)
         elif self.type == "Entry":
-            self.temp = tk.Entry(self.frame,font=('Courrier',str(self.size),"italic"),bg="#000000", fg="#FFFFFF",textvariable=self.var)
+            self.temp = tk.Entry(self.frame,font=('Courrier',str(self.size)),bg="#000000", fg="#FFFFFF",textvariable=self.var)
         self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
 
     def grid_forget(self):
@@ -239,7 +241,8 @@ class error_box:
 
 class main_game:
     def __init__(self):
-        global e_1,e_2,d_p,d_p2,d_p3,nb_p
+        global e_1,e_2,d_p,d_p2,d_p3,nb_p,a
+        game.unbind('<space>')
         self.tour = 1
         self.frame2 = tk.Frame(game,bg="#000000")
         self.frame3 = tk.Frame(game,bg="#000000")
@@ -257,6 +260,13 @@ class main_game:
 
         self.frame2.pack()
         self.frame3.pack()
+
+        self.a = False
+
+        game.bind('<Left>',self.mvm_left)
+        game.bind('<Right>',self.mvm_right)
+        game.bind('<Up>',self.mvm_up)
+        game.bind('<Down>',self.mvm_down)
 
     def create_grid(self,event=None):
         w = self.ca.winfo_width()
@@ -291,6 +301,7 @@ class main_game:
                     self.ca.create_text(tmp_x+22,tmp_y+22,text=" "+str(d_p2[key])+"\n"+str(d_p4[key]),font=('Courrier',"7","bold"))
 
     def update_tour(self):
+        self.a = False
         self.delete_frame()
         if self.player < nb_p - 1:
             self.player += 1
@@ -378,7 +389,7 @@ class main_game:
                                 self.draw_players()
                                 d_p[self.target_key[0]].set_status(False)
                         else:
-                            self.t6 = Text_Button_Entry("Label",str(self.tmp_target.get())+" a désormais\n"+str(d_p[self.target_key[0]].get_pt_vie())+"PV",self.frame3,0,2,2,1,15,8,24,None,None)
+                            self.t6 = Text_Button_Entry("Label",str(self.tmp_target.get())+" a désormais "+str(d_p[self.target_key[0]].get_pt_vie())+"PV\nDégats infligés: "+str(d_p[self.key].get_dgts()),self.frame3,0,2,2,1,15,8,24,None,None)
                             self.b7 = Text_Button_Entry("Button","OK",self.frame3,0,2,4,1,15,8,18,self.attack_3,None)
                     else:
                         self.t6 = Text_Button_Entry("Label","Vous ne pouvez pas attaquer un mort",self.frame3,0,2,2,1,15,18,24,None,None)
@@ -414,6 +425,7 @@ class main_game:
         self.update_tour()
 
     def deplacement(self):
+        self.a = True
         self.delete_buttons()
         self.valid = True
         if self.tmp_mvm > 0:
@@ -426,6 +438,7 @@ class main_game:
         else:
             self.t8 = Text_Button_Entry("Label","Déplacements finis",self.frame3,0,2,2,1,15,20,24,None,None)
             self.b9 = Text_Button_Entry("Button","OK",self.frame3,0,2,4,1,15,8,18,self.skip_2,None)
+            self.a = False
         
     def skip(self):
         self.delete_buttons_2()
@@ -477,6 +490,22 @@ class main_game:
         self.delete_frame_2()
         self.draw_players()
         self.deplacement()
+
+    def mvm_left(self,arg):
+        if self.a:
+            self.dep_gauche()
+
+    def mvm_right(self,arg):
+        if self.a:
+            self.dep_droite()
+
+    def mvm_up(self,arg):
+        if self.a:
+            self.dep_haut()
+
+    def mvm_down(self,arg):
+        if self.a:
+            self.dep_bas()
 
     def delete_frame(self):
         self.frame3.grid_forget()
