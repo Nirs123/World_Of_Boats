@@ -4,6 +4,7 @@ import operator
 
 game = tk.Tk()
 
+game.unbind_class("Button", "<Key-space>")
 game.title('Monde des Bateaux')
 game.geometry('880x980')
 game.minsize(880, 980)
