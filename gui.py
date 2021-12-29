@@ -1,5 +1,6 @@
 from random import randint
 import tkinter as tk
+import operator
 
 game = tk.Tk()
 
@@ -27,6 +28,7 @@ class perso:
             self.bonus=2
             self.mvm = 4
             self.range = 5
+            self.ini = 20
         if Boats=="Destroyer":
             self.name=pseudo
             self.boats="Destroyer"
@@ -40,6 +42,7 @@ class perso:
             self.inondation=1
             self.mvm = 5
             self.range = 5
+            self.ini = 30
         if Boats=="Cuirasse":
             self.name=pseudo
             self.boats="Cuirasse"
@@ -52,6 +55,7 @@ class perso:
             self.bonus=3
             self.mvm = 3
             self.range = 6
+            self.ini = 10
         if Boats=="Submarine":
             self.name=pseudo
             self.boats="Submarine"
@@ -65,6 +69,7 @@ class perso:
             self.inondation=2
             self.mvm = 5
             self.range = 5
+            self.ini = 40
         self.recharge=0
         self.Pt_vie=self.Pt_Vie
 
@@ -119,6 +124,9 @@ class perso:
 
     def get_dgts(self):
         return self.dgts
+
+    def get_ini(self):
+        return self.ini
 
     def bonus_vie(self):
         self.set_pv(self.get_pt_vie()+randint(int(self.Pt_Vie//6),int(self.Pt_Vie//4)))
@@ -225,7 +233,7 @@ class Create_Player:
         else:
             error_box("ERREUR: Pseudo")
         if self.valid:
-            d_p[tmp] = q
+            d_tmp[tmp] = q
             d_p2[tmp] = q.get_pseudo()
             d_p3[tmp] = self.equipe
             d_p4[tmp] = self.tmp_c.get()
@@ -242,13 +250,15 @@ class error_box:
 class main_game:
     def __init__(self):
         global e_1,e_2,d_p,d_p2,d_p3,nb_p,a
-        game.unbind('<space>')
         self.tour = 1
         self.frame2 = tk.Frame(game,bg="#000000")
         self.frame3 = tk.Frame(game,bg="#000000")
 
-        self.player = -1
-        self.tmp_player = str(f"player{self.player}")
+        self.indexs = []
+        for key in d_p.keys():
+            self.indexs.append(key)
+        self.index = -1
+        self.tmp_player = str(self.indexs[self.index])
 
         self.ca = tk.Canvas(self.frame2,height=880,width=880,bg="#03005e",highlightthickness=0)
         self.ca.pack(fill=tk.BOTH, expand=True)
@@ -303,12 +313,12 @@ class main_game:
     def update_tour(self):
         self.a = False
         self.delete_frame()
-        if self.player < nb_p - 1:
-            self.player += 1
-            self.tmp_player = str(f"player{self.player}")
-        elif self.player == nb_p - 1:
-            self.player = 0
-            self.tmp_player = str(f"player{self.player}")
+        if self.index + 1 < len(self.indexs):
+            self.index += 1
+            self.tmp_player = str(self.indexs[self.index])
+        else:
+            self.index = 0
+            self.tmp_player = str(self.indexs[self.index])
             self.tour += 1
         if len(e_1) == len(e_1d):
             self.end_game(1)
@@ -389,7 +399,7 @@ class main_game:
                                 self.draw_players()
                                 d_p[self.target_key[0]].set_status(False)
                         else:
-                            self.t6 = Text_Button_Entry("Label",str(self.tmp_target.get())+" a désormais "+str(d_p[self.target_key[0]].get_pt_vie())+"PV\nDégats infligés: "+str(d_p[self.key].get_dgts()),self.frame3,0,2,2,1,15,8,24,None,None)
+                            self.t6 = Text_Button_Entry("Label",str(self.tmp_target.get())+" a désormais "+str(d_p[self.target_key[0]].get_pt_vie())+"PV\nDégats infligés: "+str(d_p[self.key].get_dgts())+"PV",self.frame3,0,2,2,1,15,8,24,None,None)
                             self.b7 = Text_Button_Entry("Button","OK",self.frame3,0,2,4,1,15,8,18,self.attack_3,None)
                     else:
                         self.t6 = Text_Button_Entry("Label","Vous ne pouvez pas attaquer un mort",self.frame3,0,2,2,1,15,18,24,None,None)
@@ -553,6 +563,12 @@ def switch_frame():
     else:
         frame1.grid_forget()
         frame1.destroy()
+        for values in d_tmp:
+            cl_ini[values] = d_tmp[values].get_ini()
+        d_tmp2 = dict(sorted(cl_ini.items(), key=operator.itemgetter(1),reverse=True))
+        for keys in d_tmp2.keys():
+            d_p[keys] = d_tmp[keys]
+        print(d_p)
         main_game()
 
 e_1 = {}
@@ -560,6 +576,9 @@ e_2 = {}
 e_1d = []
 e_2d = []
 nb_p = 0
+d_tmp = {}
+d_tmp2 = {}
+cl_ini = {}
 d_p = {}
 d_p2 = {}
 d_p3 = {}
@@ -568,13 +587,9 @@ d_p4 = {}
 frame1 = tk.Frame(game,bg="#000000")
 
 t1 = Text_Button_Entry("Label","Bienvenue sur Monde des Bateaux",frame1,0,1,0,5,0,45,38,None,None)
-
 t2 = Text_Button_Entry("Label","Veuillez créer les joueurs",frame1,1,1,0,5,0,0,28,None,None)
-
 b1 = Text_Button_Entry("Button","Cliquez pour ajouter \nun joueur dans\nl'équipe 1",frame1,2,1,0,2,0,55,20,lambda e=1:Create_Player(e),None)
-
 b2 = Text_Button_Entry("Button","Cliquez pour ajouter \nun joueur dans\nl'équipe 2",frame1,2,1,3,2,0,55,20,lambda e=2:Create_Player(e),None)
-
 b3 = Text_Button_Entry("Button","Play",frame1,6,1,0,5,0,35,26,switch_frame,None)
 
 frame1.pack()
