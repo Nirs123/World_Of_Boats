@@ -14,101 +14,89 @@ game.config(bg="#000000")
 
 class perso:
     def __init__(self,pseudo,X,Y,Boats):
-        self.x=X
-        self.y=Y
+        self.x = X
+        self.y = Y
         self.status = True
+        self.passiv_heal = False
         if Boats=="Cruiser":
-            self.name=pseudo
-            self.boats="Cruiser"
-            self.Pt_Vie=80000
-            self.pv_max=80000
-            self.attack=17000
-            self.torps=0
-            self.sub_bombs=10000
-            self.bullet="HE"
-            self.bonus=2
+            self.name = pseudo
+            self.boats = "Cruiser"
+            self.Pt_Vie = 80000
+            self.pv_max = 80000
+            self.atq = 16000
+            self.atq_type = 2
+            self.bonus = 2
             self.mvm = 4
             self.range = 5
             self.ini = 20
+            self.esquive = 5
+            self.obus_resist = 5
+            self.torp_resist = 5
         if Boats=="Destroyer":
-            self.name=pseudo
-            self.boats="Destroyer"
-            self.Pt_Vie=34000
-            self.pv_max=34000
-            self.attack=10000
-            self.torps=24000
-            self.sub_bombs=15000
-            self.bullet="HE"
+            self.name = pseudo
+            self.boats = "Destroyer"
+            self.Pt_Vie = 34000
+            self.pv_max = 34000
+            self.atq = 20000
+            self.atq_type = 2
             self.bonus=0
-            self.inondation=1
-            self.mvm = 5
+            self.mvm = 6
             self.range = 5
             self.ini = 30
+            self.esquive = 8
+            self.obus_resist = 4
+            self.torp_resist = 3
         if Boats=="Cuirasse":
-            self.name=pseudo
-            self.boats="Cuirasse"
-            self.Pt_Vie=100000
-            self.pv_max=100000
-            self.attack=21000
-            self.torps=0
-            self.sub_bombs=13000
-            self.bullet="AP"
-            self.bonus=3
+            self.name = pseudo
+            self.boats = "Cuirasse"
+            self.Pt_Vie = 100000
+            self.pv_max = 100000
+            self.atq = 4500
+            self.atq_type = 0
+            self.bonus = 3
             self.mvm = 3
             self.range = 6
             self.ini = 10
+            self.esquive = 2
+            self.obus_resist = 7
+            self.torp_resist = 12
         if Boats=="Submarine":
-            self.name=pseudo
-            self.boats="Submarine"
-            self.Pt_Vie=25000
-            self.pv_max=25000
-            self.attack=0
-            self.torps=29000
-            self.sub_bombs=0
-            self.bullet="AP"
-            self.bonus=0
-            self.inondation=2
+            self.name = pseudo
+            self.boats = "Submarine"
+            self.Pt_Vie = 25000
+            self.pv_max = 25000
+            self.atq = 8000
+            self.atq_type = 1
+            self.bonus = 0
             self.mvm = 5
             self.range = 5
             self.ini = 40
-        self.recharge=0
-        self.Pt_vie=self.Pt_Vie
+            self.esquive = 10
+            self.obus_resist = 80
+            self.torp_resist = 2
 
     def Attack(self,self1):
         self.dgts=0
-        if self.bullet=="HE":
-            a=randint(1,4)
-            if a==1:
-                self.dgts=self.dgts+120*50
-        if self.boats=="Submarine" or self.boats=="Destroyer":
-            c=randint(1,4)
-            if c==2:
-                self.dgts=self.dgts+self.torps//3
-                e=randint(self.inondation,6)
-                if e==self.inondation:
-                    self.dgts=self.dgts+100*90
-            elif c==3:
-                self.dgts=self.dgts+self.torps//2
-                e=randint(self.inondation,5)
-                if e==self.inondation:
-                    self.dgts=self.dgts+100*90
-            else:
-                self.dgts=self.dgts+self.torps
-                e=randint(self.inondation,4)
-                if e==self.inondation:
-                    self.dgts=self.dgts+100*90
-        if self1.boats=="Submarine" and self.boats!="Submarine":
-            self.dgts=0
-            self.dgts=randint(4000,self.sub_bombs)
-        if self.boats!="Submarine" and self1.boats=="Submarine" or self1.boats=="Destroyer":
-            b=randint(1,3)
-            if b==2:
-                self.dgts=self.dgts+randint(int(self.attack/5),int(self.attack/2))
-            else:
-                self.dgts=self.dgts+randint(int(self.attack/5),self.attack)
+        self.r1 = randint(0,4)
+        self.r2 = randint(0,3)
+        self.r3 = randint(1,5)
+        if self.atq_type == 0:
+            self.dgts = self.dgts + (self.atq * self.r1)
+            if self.r3 == 1:
+                self.dgts = self.dgts + (((self1.get_pv_max()//10)//2)*self.r1)
+            self.dgts = self.dgts - ((self1.get_res_obus()*self.dgts)//100)
+        elif self.atq_type == 1:
+            self.dgts = self.dgts + (self.atq * self.r2)
+            self.dgts = self.dgts - ((self1.get_res_torp()*self.dgts)//100)
+        elif self.atq_type == 2:
+            self.tmp = self.atq // 2 
+            self.dgts = self.dgts + (self.tmp * self.r1) + (self.tmp * self.r2)
+            self.dgts = self.dgts - ((((self1.get_res_torp() + self1.get_res_obus()) // 2)*self.dgts)//100)
+        self.r4 = randint(0,100)
+        if self.r4 <= self1.esquive:
+            self.dgts = 0
         else:
-            self.dgts=self.dgts+randint(int(self.attack/6),self.attack)
-        self1.set_pv(self1.get_pt_vie()-self.dgts)
+            self1.set_pv(self1.get_pt_vie()-self.dgts)
 
     def get_pseudo(self):
         return self.name
@@ -126,8 +114,24 @@ class perso:
     def get_dgts(self):
         return self.dgts
 
+    def set_ini(self,value):
+        self.ini = value
     def get_ini(self):
         return self.ini
+
+    def get_res_obus(self):
+        return self.obus_resist
+    def get_res_torp(self):
+        return self.torp_resist
+    def set_res_obus(self,value):
+        self.obus_resist = value
+    def set_res_torp(self,value):
+        self.torp_resist = value
+
+    def get_esquive(self):
+        return self.esquive
+    def set_esquive(self,value):
+        self.esquive = value
 
     def bonus_vie(self):
         self.set_pv(self.get_pt_vie()+randint(int(self.Pt_Vie//6),int(self.Pt_Vie//4)))
@@ -139,6 +143,8 @@ class perso:
 
     def get_mvm(self):
         return self.mvm
+    def set_mvm(self,value):
+        self.mvm = value
 
     def get_x(self):
         return self.x
@@ -147,6 +153,8 @@ class perso:
 
     def get_range(self):
         return self.range
+    def set_range(self,value):
+        self.range = value
 
     def deplacer(self,dx,dy):
         self.x+=dx
@@ -158,6 +166,23 @@ class perso:
         return self.bonus
     def get_pv_max(self):
         return self.pv_max
+    def set_pv_max(self,value):
+        self.pv_max = value
+
+    def get_atq(self):
+        return self.atq
+    def set_atq(self,value):
+        self.atq = value
+
+    def get_boat(self):
+        return self.boats
+    def switch_passiv_heal(self):
+        if self.passiv_heal:
+            self.passiv_heal = False
+        elif self.passiv_heal == False:
+            self.passiv_heal = True
+    def get_passiv_heal(self):
+        return self.passiv_heal
 
 class Text_Button_Entry:
     def __init__(self,type,text,frame,row,rowspan,column,columnspan,padx,pady,size,command,variable):
@@ -179,7 +204,12 @@ class Text_Button_Entry:
             self.temp = tk.Button(self.frame, text = self.text, font=('Courrier',str(self.size)),bg="#000000", fg="#FFFFFF",command = self.command)
         elif self.type == "Entry":
             self.temp = tk.Entry(self.frame,font=('Courrier',str(self.size)),bg="#000000", fg="#FFFFFF",textvariable=self.var)
-        self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
+        elif self.type == "Check":
+            self.temp = tk.Checkbutton(self.frame,text = self.text, font =('Courrier',str(self.size)),bg="#000000", fg="grey",variable=self.var,width=50)
+        if self.type == "Check":
+            self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
+        else:
+            self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
 
     def grid_forget(self):
         self.temp.grid_forget()
@@ -190,6 +220,8 @@ class Create_Player:
         self.temp_choose = tk.Toplevel(game)
         self.temp_choose.title("Création joueur")
         self.temp_choose.geometry("400x400")
+        self.temp_choose.minsize(400,400)
+        self.temp_choose.maxsize(400,400)
         self.temp_choose.config(bg="#000000")
 
         t1_j1 = Text_Button_Entry("Label","Menu de création du joueur",self.temp_choose,0,1,0,2,0,10,20,None,None)
@@ -202,10 +234,10 @@ class Create_Player:
         t3_j1 = Text_Button_Entry("Label","Classe:",self.temp_choose,2,1,0,1,25,10,15,None,None)
         e2_j1 = Text_Button_Entry("Entry",None,self.temp_choose,2,1,1,1,15,0,15,None,self.tmp_c)
 
-        t4_j1 = Text_Button_Entry("Label","Cuirasse: Bcp de dégats et de vie \nmais rechargement plus long et \nvulnérable aux torpilles",self.temp_choose,3,1,0,2,25,3,12,None,None)
-        t5_j1 = Text_Button_Entry("Label","Cruiser: Stats equilibrés et peut \nmettre en feu",self.temp_choose,4,1,0,2,25,3,12,None,None)
-        t6_j1 = Text_Button_Entry("Label","Destroyer: Rapide et grosses torpilles, \npeut mettre en feu mais peu de vie",self.temp_choose,5,1,0,2,25,3,12,None,None)
-        t7_j1 = Text_Button_Entry("Label","Submarine: Faible vie mais peut esquiver \nles obus et de grosses torpilles",self.temp_choose,6,1,0,2,25,3,12,None,None)
+        t4_j1 = Text_Button_Entry("Label","Cuirasse: Description a remplir",self.temp_choose,3,1,0,2,25,3,12,None,None)
+        t5_j1 = Text_Button_Entry("Label","Cruiser: Description a remplir",self.temp_choose,4,1,0,2,25,3,12,None,None)
+        t6_j1 = Text_Button_Entry("Label","Destroyer: Description a remplir",self.temp_choose,5,1,0,2,25,3,12,None,None)
+        t7_j1 = Text_Button_Entry("Label","Submarine: Description a remplir",self.temp_choose,6,1,0,2,25,3,12,None,None)
 
         b1_j1 = Text_Button_Entry("Button","OK ",self.temp_choose,7,1,0,2,25,3,12,self.teams_players,None)
 
@@ -247,6 +279,124 @@ class error_box:
         self.tmp_box.config(bg="#000000")
         t = Text_Button_Entry("Label",msg,self.tmp_box,0,1,0,1,10,10,20,None,None)
         b = Text_Button_Entry("Button","OK",self.tmp_box,1,1,0,1,0,0,14,self.tmp_box.destroy,None)
+
+class bonus_choose:
+    def __init__(self):
+        global nb_p
+        self.indexs = []
+        self.index = -1
+        for key in d_p.keys():
+            self.indexs.append(key)
+        self.key = str(self.indexs[self.index])
+        self.update_player()
+
+    def update_player(self):
+        global nb_p
+        self.index += 1
+        if self.index != len(self.indexs):
+            self.key = str(self.indexs[self.index])
+        self.bonus_box()        
+
+    def bonus_box(self):
+        self.classe = d_p[self.key].get_boat()
+        self.tmp_bonus = tk.Toplevel(game)
+        self.tmp_bonus.config(bg="#000000")
+        self.tmp_bonus.geometry("650x400")
+        self.tmp_bonus.title("Choix Bonus")
+        self.tmp_bonus.minsize(650, 400)
+        self.tmp_bonus.maxsize(650, 400)
+        t3 = Text_Button_Entry("Label","Choisissez vos 2 bonus: "+str(d_p[self.key].get_pseudo()),self.tmp_bonus,0,1,0,1,18,20,20,None,None)
+        self.opt1,self.opt2,self.opt3,self.opt4,self.opt5 = tk.IntVar(),tk.IntVar(),tk.IntVar(),tk.IntVar(),tk.IntVar()
+        if self.classe == "Cuirasse":
+            self.checkbuttons("+5% PV","+5% Résistance Obus","+5% Résistance Torpilles","1% de récupération PV chaque tour","+15 Initiative")
+        if self.classe == "Cruiser":
+            self.checkbuttons("+3% ATQ","+3% PV","+1 PM","+1 Range","+15 Initiative")
+        if self.classe == "Submarine":
+            self.checkbuttons("+1 PM","+1 Range","+5% ATQ","+10% d'esquive","+1 Bonus")
+        if self.classe == "Destroyer":
+            self.checkbuttons("+5% de ATQ","+1 Range","+7% d'ésquive","+1 Bonus","+15 Initiative")
+        b4 = Text_Button_Entry("Button","OK",self.tmp_bonus,6,1,0,1,0,15,14,self.choosen,None)
+
+    def checkbuttons(self,t1,t2,t3,t4,t5):
+        o1 = Text_Button_Entry("Check",t1,self.tmp_bonus,1,1,0,1,5,7,14,None,self.opt1)
+        o2 = Text_Button_Entry("Check",t2,self.tmp_bonus,2,1,0,1,5,7,14,None,self.opt2)
+        o3 = Text_Button_Entry("Check",t3,self.tmp_bonus,3,1,0,1,5,7,14,None,self.opt3)
+        o4 = Text_Button_Entry("Check",t4,self.tmp_bonus,4,1,0,1,5,7,14,None,self.opt4)
+        o5 = Text_Button_Entry("Check",t5,self.tmp_bonus,5,1,0,1,5,7,14,None,self.opt5)
+
+    def choosen(self):
+        global c
+        self.tmp_list = []
+        self.tmp_list.append(self.opt1.get())
+        self.tmp_list.append(self.opt2.get())
+        self.tmp_list.append(self.opt3.get())
+        self.tmp_list.append(self.opt4.get())
+        self.tmp_list.append(self.opt5.get())
+        if self.tmp_list.count(1) < 2:
+            error_box("ERREUR: Pas assez de bonus choisis")
+        if self.tmp_list.count(1) > 2:
+            error_box("ERREUR: Trop de bonus choisis")
+        if self.tmp_list.count(1) == 2:
+            if self.classe == "Cuirasse":
+                if self.opt1.get() == 1:
+                    d_p[self.key].set_pv(int(d_p[self.key].get_pt_vie()+((d_p[self.key].get_pt_vie()*5)/100)))
+                    d_p[self.key].set_pv_max(d_p[self.key].get_pt_vie())
+                if self.opt2.get() == 1:
+                    d_p[self.key].set_res_obus(d_p[self.key].get_res_obus()+5)
+                if self.opt3.get() == 1:
+                    d_p[self.key].set_res_torp(d_p[self.key].get_res_torp()+5)
+                if self.opt4.get() == 1:
+                    d_p[self.key].switch_passiv_heal()
+                if self.opt5.get() == 1:
+                    d_p[self.key].set_ini(d_p[self.key].get_ini()+15)
+            elif self.classe == "Destroyer":
+                if self.opt1.get() == 1:
+                    d_p[self.key].set_atq(int(d_p[self.key].get_atq()+((d_p[self.key].get_atq()*3)/100)))
+                if self.opt2.get() == 1:
+                    d_p[self.key].set_range(d_p[self.key].get_range()+1)
+                if self.opt3.get() == 1:
+                    d_p[self.key].set_esquive(d_p[self.key].get_esquive()+7)
+                if self.opt4.get() == 1:
+                    d_p[self.key].set_bonus(d_p[self.key].get_bonus()+1)
+                if self.opt5.get() == 1:
+                    d_p[self.key].set_ini(d_p[self.key].get_ini()+15)
+            elif self.classe == "Submarine":
+                if self.opt1.get() == 1:
+                    d_p[self.key].set_mvm(d_p[self.key].get_mvm()+1)
+                if self.opt2.get() == 1:
+                    d_p[self.key].set_range(d_p[self.key].get_range()+1)
+                if self.opt3.get() == 1:
+                    d_p[self.key].set_atq(int(d_p[self.key].get_atq()+((d_p[self.key].get_atq()*5)/100)))
+                if self.opt4.get() == 1:
+                    d_p[self.key].set_esquive(d_p[self.key].get_esquive()+10)
+                if self.opt5.get() == 1:
+                    d_p[self.key].set_bonus(d_p[self.key].get_bonus()+1)
+            elif self.classe == "Cruiser":
+                if self.opt1.get() == 1:
+                    d_p[self.key].set_atq(int(d_p[self.key].get_atq()+((d_p[self.key].get_atq()*3)/100)))
+                if self.opt2.get() == 1:
+                    d_p[self.key].set_pv(int(d_p[self.key].get_pt_vie()+((d_p[self.key].get_pt_vie()*3)/100)))
+                    d_p[self.key].set_pv_max(d_p[self.key].get_pt_vie())
+                if self.opt3.get() == 1:
+                    d_p[self.key].set_mvm(d_p[self.key].get_mvm()+1)
+                if self.opt4.get() == 1:
+                    d_p[self.key].set_range(d_p[self.key].get_range()+1)
+                if self.opt5.get() == 1:
+                    d_p[self.key].set_ini(d_p[self.key].get_ini()+15)
+            self.tmp_bonus.destroy()
+            c = c + 1
+            if c == nb_p:
+                d_p.clear()
+                for values in d_tmp:
+                    cl_ini2[values] = d_tmp[values].get_ini()
+                d_tmp2 = dict(sorted(cl_ini2.items(), key=operator.itemgetter(1),reverse=True))
+                for keys in d_tmp2.keys():
+                    d_p[keys] = d_tmp[keys]
+                main_game()
+                frame1.grid_forget()
+                frame1.destroy()
+            else:
+                self.update_player()
 
 class main_game:
     def __init__(self):
@@ -337,6 +487,9 @@ class main_game:
         self.t1 = Text_Button_Entry("Label","Tour n°"+str(self.tour),self.frame3,0,2,0,1,0,14,22,None,None)
 
         self.circle(d_p[self.key].get_x(),d_p[self.key].get_y(),d_p[self.key].get_range())
+
+        if d_p[self.key].get_passiv_heal() == True and d_p[self.key].get_pt_vie() != d_p[self.key].get_pv_max():
+            d_p[self.key].set_pv(int(d_p[self.key].get_pt_vie()+(d_p[self.key].get_pv_max()/100)))
 
         self.t2 = Text_Button_Entry("Label","Joueur: "+str(d_p2[self.key]),self.frame3,0,1,1,1,20,8,20,None,None)
         self.t3 = Text_Button_Entry("Label","PV: "+str(d_p[self.key].get_pt_vie()),self.frame3,1,1,1,1,0,0,20,None,None)
@@ -450,7 +603,7 @@ class main_game:
             self.t8 = Text_Button_Entry("Label","Déplacements finis",self.frame3,0,2,2,1,15,20,24,None,None)
             self.b9 = Text_Button_Entry("Button","OK",self.frame3,0,2,4,1,15,8,18,self.skip_2,None)
             self.a = False
-        
+
     def skip(self):
         self.delete_buttons_2()
         self.passer()
@@ -562,15 +715,13 @@ def switch_frame():
     if nb_p == 0:
         error_box("ERREUR: Aucun Joueur")
     else:
-        frame1.grid_forget()
-        frame1.destroy()
+        b3.grid_forget()
         for values in d_tmp:
             cl_ini[values] = d_tmp[values].get_ini()
         d_tmp2 = dict(sorted(cl_ini.items(), key=operator.itemgetter(1),reverse=True))
         for keys in d_tmp2.keys():
             d_p[keys] = d_tmp[keys]
-        print(d_p)
-        main_game()
+        bonus_choose()
 
 e_1 = {}
 e_2 = {}
@@ -580,10 +731,12 @@ nb_p = 0
 d_tmp = {}
 d_tmp2 = {}
 cl_ini = {}
+cl_ini2 = {}
 d_p = {}
 d_p2 = {}
 d_p3 = {}
 d_p4 = {}
+c = 0
 
 frame1 = tk.Frame(game,bg="#000000")
 
