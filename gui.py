@@ -89,8 +89,10 @@ class perso:
             self.dgts = self.dgts + (self.atq * self.r2)
             self.dgts = self.dgts - ((self1.get_res_torp()*self.dgts)//100)
         elif self.atq_type == 2:
-            self.tmp = self.atq // 2 
+            self.tmp = self.atq // 2
             self.dgts = self.dgts + (self.tmp * self.r1) + (self.tmp * self.r2)
+            if self.r3 == 1:
+                self.dgts = self.dgts + (((self1.get_pv_max()//10)//2)*self.r1)
             self.dgts = self.dgts - ((((self1.get_res_torp() + self1.get_res_obus()) // 2)*self.dgts)//100)
         self.r4 = randint(0,100)
         if self.r4 <= self1.esquive:
@@ -206,40 +208,97 @@ class Text_Button_Entry:
             self.temp = tk.Entry(self.frame,font=('Courrier',str(self.size)),bg="#000000", fg="#FFFFFF",textvariable=self.var)
         elif self.type == "Check":
             self.temp = tk.Checkbutton(self.frame,text = self.text, font =('Courrier',str(self.size)),bg="#000000", fg="grey",variable=self.var,width=50)
-        if self.type == "Check":
-            self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
-        else:
-            self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
+        self.temp.grid(row = self.row,column = self.column,padx = self.padx,pady = self.pady,columnspan = self.columnspan, rowspan = self.rowspan)
 
     def grid_forget(self):
         self.temp.grid_forget()
+
+class index_class:
+    def __init__(self):
+        self.cui = [100000,18000,"Obus",3,6,3,10,2,7,12]
+        self.cru = [80000,16000,"Obus et\nTorpilles",4,5,2,20,5,5,5]
+        self.des = [34000,20000,"Obus et\nTorpilles",6,5,0,30,8,4,3]
+        self.sub = [25000,24000,"Torpilles",5,5,0,40,10,80,2]
+        self.names = ["Cuirassé","Cruiser","Destroyer","Submarine"]
+        self.attri = ["PV","ATQ","   Type\nd'attaque","Mouvements","Range","Heals","Initiative","Esquive","Resistance\n   Obus","Resistance\n  Torpilles"]
+        self.list = [self.cui,self.cru,self.des,self.sub]
+
+        self.chart = tk.Toplevel(game)
+        self.chart.title("Statistiques détaillées")
+        self.chart.geometry("1160x540")
+        self.chart.minsize(1160,540)
+        self.chart.maxsize(1160,540)
+        self.chart.config(bg="#000000")
+
+        self.ca2 = tk.Canvas(self.chart, height=455, width=1160, bg="#000000")
+        self.show_values()
+        self.ca2.pack()
+        self.ca2.bind('<Configure>', self.create_grid_2)
+
+        self.tmp = tk.Button(self.chart, text = "QUIT", font=('Courrier',"18","bold"),bg="#000000", fg="#FFFFFF",command = self.quit)
+        self.tmp.pack(pady=15)
+
+    def show_values(self):
+        self.y = 1
+        for name in self.names:
+            self.ca2.create_text(52.5,self.y*90+45,text=str(name),font=('Courrier',"13","bold"),fill="white")
+            self.y += 1
+
+        self.x = 1
+        for attri in self.attri:
+            self.ca2.create_text(self.x*105.5+53,45,text=str(attri),font=('Courrier',"13","bold"),fill="white")
+            self.x += 1
+
+        self.u = 1
+        self.j = 1
+        for i in self.list:
+            for value in i:
+                self.ca2.create_text(self.u*105.5+52.5,self.j*90+45,text=str(value),font=('Courrier',"14","bold"),fill="white")
+                self.u += 1
+            self.u = 1
+            self.j += 1
+
+    def create_grid_2(self,event = None):
+        w = self.ca2.winfo_width()
+        h = self.ca2.winfo_height()
+        self.ca2.delete('grid_line')
+
+        for i in range(0, w, 106):
+            self.ca2.create_line([(i, 0), (i, h)], tag='grid_line',fill='white')
+
+        for i in range(0, h-50, 90):
+            self.ca2.create_line([(0, i), (w, i)], tag='grid_line',fill='white')
+
+    def quit(self):
+        self.chart.destroy()
 
 class Create_Player:
     def __init__(self,e):
         self.equipe = e
         self.temp_choose = tk.Toplevel(game)
         self.temp_choose.title("Création joueur")
-        self.temp_choose.geometry("400x400")
-        self.temp_choose.minsize(400,400)
-        self.temp_choose.maxsize(400,400)
+        self.temp_choose.geometry("420x420")
+        self.temp_choose.minsize(420,450)
+        self.temp_choose.maxsize(420,450)
         self.temp_choose.config(bg="#000000")
 
         t1_j1 = Text_Button_Entry("Label","Menu de création du joueur",self.temp_choose,0,1,0,2,0,10,20,None,None)
 
         self.tmp_p = tk.StringVar()
-        t2_j1 = Text_Button_Entry("Label","Pseudo:",self.temp_choose,1,1,0,1,25,0,15,None,None)
-        e1_j1 = Text_Button_Entry("Entry",None,self.temp_choose,1,1,1,1,15,0,15,None,self.tmp_p)
+        t2_j1 = Text_Button_Entry("Label","Pseudo:",self.temp_choose,1,1,0,1,25,0,14,None,None)
+        e1_j1 = Text_Button_Entry("Entry",None,self.temp_choose,1,1,1,1,0,0,14,None,self.tmp_p)
 
         self.tmp_c = tk.StringVar()
         t3_j1 = Text_Button_Entry("Label","Classe:",self.temp_choose,2,1,0,1,25,10,15,None,None)
-        e2_j1 = Text_Button_Entry("Entry",None,self.temp_choose,2,1,1,1,15,0,15,None,self.tmp_c)
+        e2_j1 = Text_Button_Entry("Entry",None,self.temp_choose,2,1,1,1,0,0,15,None,self.tmp_c)
 
-        t4_j1 = Text_Button_Entry("Label","Cuirasse: Description a remplir",self.temp_choose,3,1,0,2,25,3,12,None,None)
-        t5_j1 = Text_Button_Entry("Label","Cruiser: Description a remplir",self.temp_choose,4,1,0,2,25,3,12,None,None)
-        t6_j1 = Text_Button_Entry("Label","Destroyer: Description a remplir",self.temp_choose,5,1,0,2,25,3,12,None,None)
-        t7_j1 = Text_Button_Entry("Label","Submarine: Description a remplir",self.temp_choose,6,1,0,2,25,3,12,None,None)
+        t4_j1 = Text_Button_Entry("Label","Cuirasse: Tank a beaucoup de PV et Résistances\nPeu de Mouvement, beaucoup de Range\nDégats de type Obus",self.temp_choose,3,1,0,2,25,5,12,None,None)
+        t5_j1 = Text_Button_Entry("Label","Cruiser: PV / ATQ / Range / Mouvement Equilibrés\nDégats de type Obus et Torpilles",self.temp_choose,4,1,0,2,25,5,12,None,None)
+        t6_j1 = Text_Button_Entry("Label","Destroyer: Beaucoup d'ATQ et de Mouvement\n Assez peu de PV donc assez vulnérable\nDégats de type Obus et Torpilles",self.temp_choose,5,1,0,2,25,5,12,None,None)
+        t7_j1 = Text_Button_Entry("Label","Submarine: Beaucoup d'ATQ / Mouvement / Range\n Très résistant aux Obus mais très peu de PV\nDégats de types torpilles",self.temp_choose,6,1,0,2,25,5,12,None,None)
 
-        b1_j1 = Text_Button_Entry("Button","OK ",self.temp_choose,7,1,0,2,25,3,12,self.teams_players,None)
+        b1_j1 = Text_Button_Entry("Button","OK ",self.temp_choose,7,1,1,1,25,5,12,self.teams_players,None)
+        b2_j1 = Text_Button_Entry("Button","Stats détaillées",self.temp_choose,7,1,0,1,15,3,14,index_class,None)
 
     def teams_players(self):
         global d_p,d_p2,d_p3,nb_p,d_p4
@@ -295,7 +354,7 @@ class bonus_choose:
         self.index += 1
         if self.index != len(self.indexs):
             self.key = str(self.indexs[self.index])
-        self.bonus_box()        
+        self.bonus_box()
 
     def bonus_box(self):
         self.classe = d_p[self.key].get_boat()
@@ -312,9 +371,9 @@ class bonus_choose:
         if self.classe == "Cruiser":
             self.checkbuttons("+3% ATQ","+3% PV","+1 PM","+1 Range","+15 Initiative")
         if self.classe == "Submarine":
-            self.checkbuttons("+1 PM","+1 Range","+5% ATQ","+10% d'esquive","+1 Bonus")
+            self.checkbuttons("+1 PM","+1 Range","+5% ATQ","+10% d'esquive","+1 Soins")
         if self.classe == "Destroyer":
-            self.checkbuttons("+5% de ATQ","+1 Range","+7% d'ésquive","+1 Bonus","+15 Initiative")
+            self.checkbuttons("+5% de ATQ","+1 Range","+7% d'ésquive","+1 Soins","+15 Initiative")
         b4 = Text_Button_Entry("Button","OK",self.tmp_bonus,6,1,0,1,0,15,14,self.choosen,None)
 
     def checkbuttons(self,t1,t2,t3,t4,t5):
@@ -446,18 +505,14 @@ class main_game:
             tmp_x = d_p[key].get_x()*44
             tmp_y = d_p[key].get_y()*44
             self.tmp_coord.append(tuple((d_p[key].get_x(),d_p[key].get_y())))
-            if d_p3[key] == 1:
-                if d_p[key].get_pt_vie() <= 0:
-                    self.rect = self.ca.create_rectangle(tmp_x,tmp_y,tmp_x+44,tmp_y+44,fill='grey')
-                    self.ca.create_text(tmp_x+22,tmp_y+22,text=" "+str(d_p2[key])+"\n"+str(d_p4[key]),font=('Courrier',"7","bold"))
-                else:
+            if d_p[key].get_pt_vie() <= 0:
+                self.rect = self.ca.create_rectangle(tmp_x,tmp_y,tmp_x+44,tmp_y+44,fill='grey')
+                self.ca.create_text(tmp_x+22,tmp_y+22,text=" "+str(d_p2[key])+"\n"+str(d_p4[key]),font=('Courrier',"7","bold"))
+            else:
+                if d_p3[key] == 1:
                     self.rect = self.ca.create_rectangle(tmp_x,tmp_y,tmp_x+44,tmp_y+44,fill='red')
                     self.ca.create_text(tmp_x+22,tmp_y+22,text=" "+str(d_p2[key])+"\n"+str(d_p4[key]),font=('Courrier',"7","bold"))
-            elif d_p3[key] == 2:
-                if d_p[key].get_pt_vie() <= 0:
-                    self.rect = self.ca.create_rectangle(tmp_x,tmp_y,tmp_x+44,tmp_y+44,fill='grey')
-                    self.ca.create_text(tmp_x+22,tmp_y+22,text=" "+str(d_p2[key])+"\n"+str(d_p4[key]),font=('Courrier',"7","bold"))
-                else:
+                elif d_p3[key] == 2:
                     self.rect = self.ca.create_rectangle(tmp_x,tmp_y,tmp_x+44,tmp_y+44,fill='green')
                     self.ca.create_text(tmp_x+22,tmp_y+22,text=" "+str(d_p2[key])+"\n"+str(d_p4[key]),font=('Courrier',"7","bold"))
 
@@ -574,10 +629,10 @@ class main_game:
                 d_p[self.key].bonus_vie()
                 if d_p[self.key].get_pt_vie() > d_p[self.key].get_pv_max():
                     d_p[self.key].set_pv(d_p[self.key].get_pv_max())
-                self.t7 = Text_Button_Entry("Label","Vous avez désormais "+str(d_p[self.key].get_pt_vie())+"PV\nBonus Restants: "+str(d_p[self.key].get_bonus()),self.frame3,0,2,2,1,15,8,24,None,None)
+                self.t7 = Text_Button_Entry("Label","Vous avez désormais "+str(d_p[self.key].get_pt_vie())+"PV\nSoins Restants: "+str(d_p[self.key].get_bonus()),self.frame3,0,2,2,1,15,8,24,None,None)
                 self.b8 = Text_Button_Entry("Button","OK",self.frame3,0,2,4,1,15,8,18,self.soins_2,None)
             else:
-                self.t7 = Text_Button_Entry("Label","Vous n'avez plus de bonus",self.frame3,0,2,2,1,15,20,24,None,None)
+                self.t7 = Text_Button_Entry("Label","Vous n'avez plus de soins",self.frame3,0,2,2,1,15,20,24,None,None)
                 self.b8 = Text_Button_Entry("Button","OK",self.frame3,0,2,4,1,15,8,18,self.soins_2,None)
         else:
             self.t7 = Text_Button_Entry("Label","Vous êtes déjà a vos PV Max",self.frame3,0,2,2,1,15,20,24,None,None)
