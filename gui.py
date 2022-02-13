@@ -388,7 +388,7 @@ class Create_Player:
         else:
             error_box("ERREUR: Pseudo")
         if self.valid:
-            #Si tout est valide, on stockage 
+            #Si tout est valide, stockage dans les différents dico
             d_tmp[tmp] = q
             d_p2[tmp] = q.get_pseudo()
             d_p3[tmp] = self.equipe
@@ -573,8 +573,8 @@ class main_game:
         game.bind('<Right>',self.mvm_right)
         game.bind('<Up>',self.mvm_up)
         game.bind('<Down>',self.mvm_down)
-        
-        #Création d'une variable booléenne pour savoir si les flèches peuvent agir ou non (sera activer en true dès que la méthode/action mouvement est activé) 
+
+        #Création d'une variable booléenne pour savoir si les flèches peuvent agir ou non (sera activer en true dès que la méthode/action mouvement est activé)
         self.a = False
 
     def create_grid(self,event=None):
@@ -913,7 +913,7 @@ class main_game:
         self.create_grid()
 
     def delete_buttons(self):
-        #Supprime tout les boutons 
+        #Supprime tout les boutons
         self.t1.grid_forget()
         self.t2.grid_forget()
         self.t3.grid_forget()
@@ -940,7 +940,7 @@ class main_game:
             self.tmp_str = ""
             for element in e_2:
                 self.tmp_str = self.tmp_str + d_p[element].get_pseudo() + " "
-            t = Text_Button_Entry("Label","Partie terminé\nGagnants: "+str(self.tmp_str),self.frame3,0,1,0,1,15,8,24,None,None)
+            t = Text_Button_Entry("Label","Partie terminée\nGagnants: "+str(self.tmp_str),self.frame3,0,1,0,1,15,8,24,None,None)
             b = Text_Button_Entry("Button","QUIT",self.frame3,0,1,1,2,15,20,24,game.destroy,None)
         elif self.lose == 2:
             self.tmp_str = ""
@@ -964,7 +964,7 @@ def switch_frame():
         #Dans l'ordre de l'initiative, calsse les joueurs
         for keys in d_tmp2.keys():
             d_p[keys] = d_tmp[keys]
-        #Appelle la classe bonus_choose pour la séléction des bonus pour chaque joueur 
+        #Appelle la classe bonus_choose pour la séléction des bonus pour chaque joueur
         bonus_choose()
 
 #Initialisation de plusieurs variables
